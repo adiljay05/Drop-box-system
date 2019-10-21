@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{fileName}}</title>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/styles.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Questrial">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script type="text/javascript">
+       function back()
+        {
+            window.history.back();
+        }
+
+    </script>
+</head>
+<body>
+    <div class="header">
+    <div style="float:left; width:70%; text-align: left;">
+        Dropbox
+        <br>
+        <a class="heading" style="color: #bdbdbd;">
+            You are logged in as
+        </a>
+        <a class="heading">
+            {{ user.email() }}
+        </a>
+    </div>
+
+    <div style="float:right">
+        <a href="{{ url }}">
+            <div class="logoutButton">
+                Logout
+            </div>
+        </a>
+
+        <form method="post" action="/">
+            <input type="hidden" name="button" value="Home">
+            <button class="button" style="padding: 5px; margin-top: 7px" title="Navigate to the root directory.">
+                <i class="material-icons">home</i>
+            </button>
+        </form>
+
+    </div>
+</div>
+    <div class="content">
+        File name : {{fileName}} <br>
+        File size : {{size}} KB<br>
+        File Type : {{type1}}<br>
+        Date Created: {{creation}}<br><br>
+        <input type="button" value="Back" class="button" onclick="back()"/><br><br>
+    </div>
+</body>
+</html>

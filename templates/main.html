@@ -1,0 +1,219 @@
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Dropbox</title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/styles.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Questrial">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <script src="/scripts/script.js"></script>
+</head>
+
+<body onload="init()">
+<div class="header">
+    <div style="float:left; width:70%; text-align: left;">
+        Dropbox
+        <br>
+        <a class="heading" style="color: #bdbdbd;">
+            You are logged in as
+        </a>
+        <a class="heading">
+            {{ user.email() }}
+        </a>
+    </div>
+
+    <div style="float:right">
+        <a href="{{ url }}">
+            <div class="logoutButton">
+                Logout
+            </div>
+        </a>
+
+        <form method="post" action="/">
+            <input type="hidden" name="button" value="Home">
+            <button class="button" style="padding: 5px; margin-top: 7px" title="Navigate to the root directory.">
+                <i class="material-icons">home</i>
+            </button>
+        </form>
+
+    </div>
+</div>
+
+<div class="content">
+    {% set fileCount=0 %}
+    {% set directoryCount=0 %}
+    <table>
+        <!-- upload row -->
+        <tr>
+            <!-- form for uploading a file to the blobstore -->
+            <form action="{{ upload_url }}" method="post" enctype="multipart/form-data">
+                <td>
+                    <input type="file" name="file" id="file_upload" class="input_file" multiple>
+                    <label class="file_upload_label" id="file_upload_label" for="file_upload">Choose a file...</label>
+                </td>
+                <td class="icon_row">
+                    <button type="submit" class="button" value="Upload">
+                        <i class="material-icons">file_upload</i>
+                    </button>
+                </td>
+            </form>
+        </tr>
+
+        <!-- add directory row -->
+        <tr>
+            <form method="post" action="/">
+                <td>
+                    <input type="text" class="text_input" name="value" id="text_input"
+                           placeholder="Add a new directory..."/>
+                </td>
+
+                <td class="icon_row">
+                    <button type="submit" class="button" name="button" value="Add">
+                        <i class="material-icons">add</i>
+                    </button>
+                </td>
+            </form>
+        </tr>
+    </table>
+
+    <br>
+
+    <table class="table_content">
+
+        {% if is_not_in_root %}
+            <tr>
+                <!-- icon -->
+                <th class="icon_row">
+                    <i class="material-icons">folder_open</i>
+                </th>
+
+                <!-- current path -->
+                <th colspan="2">
+                    {{ current_path }}
+                </th>
+            </tr>
+                <!-- navigate up link -->
+            <tr>
+                <th class="icon_row" colspan="2">
+                    <form method="post" action="/" style="margin: 0px;">
+                        <button type="submit" name="button" class="button_back" value="Up" style="text-align: left;">
+                            ../
+                        </button>
+                    </form>
+                </th>
+            </tr>
+
+
+
+        {% else %}
+            <tr>
+                <!-- icon -->
+                <th class="icon_row">
+                    <i class="material-icons" style="padding-top: 7px; padding-bottom: 7px">folder_open</i>
+                </th>
+
+                <!-- current path -->
+                <th colspan="3">
+                    {{ current_path }}
+                </th>
+            </tr>
+        {% endif %}
+
+        <input type="hidden" id=directory1Count>
+
+        {% if directories %}
+            {% for directory in directories %}
+                {% set directoryCount = directoryCount + 1 %}
+                <tr class="content_table_row">
+                    <!-- icon -->
+                    <td class="table_data icon_row">
+                        <a href="/?directory_name={{ directory }}">
+                            <i class="material-icons">folder</i>
+                        </a>
+                    </td>
+                    <script>document.getElementById('directory1Count').value={{directoryCount}}</script>
+                    <!-- directory name + link -->
+                    <td class="table_data" colspan="2">
+                        <a href="/?directory_name={{ directory }}" class="table_link">
+                            {{ directory }}
+                        </a>
+                    </td>
+
+                    <!-- delete button -->
+                    <td class="table_data icon_row">
+                        <form method="post" action="/" style="margin: 0px;">
+                            <input type="hidden" name="name" value="{{ directory }}"/>
+                            <input type="hidden" name="kind" value="directory"/>
+                            <button type="submit" name="button" class="button" value="Delete">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </form>
+                    </td>
+
+                </tr>
+            {% endfor %}
+        {% endif %}
+        <input type="hidden" id="file1Count">
+        {% if files %}
+            {% for file in files %}
+                {% set fileCount = fileCount + 1 %}
+                <tr class="content_table_row" style="height: 50px;">
+                    <!-- icon -->
+                    <td class="table_data icon_row">
+                            <i class="material-icons">insert_drive_file</i>
+                    </td>
+                    <script>document.getElementById('file1Count').value={{fileCount}}</script>
+
+                    <!-- filename + download link -->
+                    <td class="table_data" colspan="2">
+                            {{ file }}
+                    </td>
+                    
+                    <td class="table_data icon_row">
+                        <a href="/download?file_name={{ file }}" class="table_link"><span class="material-icons button">file_download</span></a>
+                    </td>
+                    <!-- delete button -->
+                    {% set path=current_path+'/'+file %}
+                    <td class="table_data icon_row">
+                        <form method="post" action="/" style="margin: 0px;">
+                            <input type="hidden" name="fileName" value="{{file}}"/>
+                            <button type="submit" name="button" class="button" value="info">
+                                <i class="material-icons">info</i>
+                            </button>
+                        </form>
+                    </td>
+                    <td class="table_data icon_row">
+                        <form method="post" action="/" style="margin: 0px;">
+                            <input type="hidden" name="name" value="{{ file }}"/>
+                            <input type="hidden" name="kind" value="file"/>
+                            <button type="submit" name="button" class="button" value="Delete">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </form>
+                    </td>
+
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </table>
+
+    <div>Folder Contains <span id=files></span> Files and <span id="directories"></span> directories <br>Total size of files in current folder: {{sizeOfDirectory}} KB</div>
+    <script>
+        var file1=document.getElementById('file1Count').value;
+        var dir=document.getElementById('directory1Count').value;
+        if(file1!="")
+            document.getElementById('files').innerHTML=file1;
+        else
+            document.getElementById('files').innerHTML=0;
+        if(dir!="")
+            document.getElementById('directories').innerHTML=dir;
+        else
+            document.getElementById('directories').innerHTML=0;
+    </script>
+    
+</div>
+</body>
+
+</html>
